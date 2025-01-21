@@ -139,8 +139,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                             File(
                                               imageFiles[index].path,
                                             ),
-                                            height: 90,
-                                            width: 60,
+                                            height: 10,
+                                            width: 10,
                                           ),
                                           Positioned(
                                             top: 0,
@@ -153,8 +153,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                               },
                                               child: Image.network(
                                                 "https://logowik.com/content/uploads/images/close1437.jpg",
-                                                height: 30,
-                                                width: 30,
+                                                height: 10,
+                                                width: 10,
                                               ),
                                             ),
                                           )
