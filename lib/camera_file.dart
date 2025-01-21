@@ -154,7 +154,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                                   });
                                                 },
                                                 child: Image.network(
-                                                  "https://logowik.com/content/uploads/images/close1437.jpg",
+                                                  "https://w7.pngwing.com/pngs/621/587/png-transparent-cross-illustration-no-symbol-computer-icons-red-cross-angle-text-rectangle-thumbnail.png",
                                                   height: 10,
                                                   width: 10,
                                                 ),
@@ -183,8 +183,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                         File(
                                           imageFiles[index].path,
                                         ),
-                                        height: 90,
-                                        width: 60,
+                                        height: 10,
+                                        width: 10,
                                       ),
                                     ),
                         )
@@ -247,8 +247,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                     child: Padding(
                                       padding: const EdgeInsets.all(2.0),
                                       child: Container(
-                                        height: 50,
-                                        width: 50,
+                                        height: 10,
+                                        width: 10,
                                         decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
@@ -267,8 +267,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                     child: Padding(
                                       padding: const EdgeInsets.all(2.0),
                                       child: Container(
-                                        height: 50,
-                                        width: 50,
+                                        height: 10,
+                                        width: 10,
                                         decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
