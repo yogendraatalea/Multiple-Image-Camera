@@ -141,8 +141,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                               File(
                                                 imageFiles[index].path,
                                               ),
-                                              height: 40,
-                                              width: 50,
+                                              height: 10,
+                                              width: 10,
                                             ),
                                             Positioned(
                                               top: 0,
@@ -155,8 +155,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                                 },
                                                 child: Image.network(
                                                   "https://w7.pngwing.com/pngs/621/587/png-transparent-cross-illustration-no-symbol-computer-icons-red-cross-angle-text-rectangle-thumbnail.png",
-                                                  height: 10,
-                                                  width: 10,
+                                                  height: 90,
+                                                  width: 60,
                                                 ),
                                               ),
                                             )
@@ -183,8 +183,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                         File(
                                           imageFiles[index].path,
                                         ),
-                                        height: 50,
-                                        width: 50,
+                                        height: 10,
+                                        width: 10,
                                       ),
                                     ),
                         )
