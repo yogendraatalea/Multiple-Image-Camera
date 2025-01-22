@@ -267,8 +267,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                     child: Padding(
                                       padding: const EdgeInsets.all(2.0),
                                       child: Container(
-                                        height: 10,
-                                        width: 10,
+                                        height: 30,
+                                        width: 30,
                                         decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
