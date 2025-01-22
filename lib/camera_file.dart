@@ -26,7 +26,6 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController controller;
   late Animation<double> scaleAnimation;
-  bool showThumbnails = true; // To toggle the visibility of thumbnails
 
   addImages(XFile image) {
     setState(() {
@@ -71,6 +70,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
 
   Future<void> _initCamera() async {
     _cameras = await availableCameras();
+    // ignore: unnecessary_null_comparison
     if (_cameras != null) {
       _controller = CameraController(_cameras[0], ResolutionPreset.ultraHigh,
           enableAudio: false);
@@ -80,13 +80,14 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
         }
         setState(() {});
       });
-    }
+    } else {}
   }
 
   @override
   void initState() {
     _initCamera();
     _currIndex = 0;
+
     super.initState();
   }
 
@@ -104,95 +105,89 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
             height: double.infinity,
             child: Stack(fit: StackFit.expand, children: [
               CameraPreview(_controller!),
-              if (showThumbnails) // Only show thumbnails if true
-                ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 100),
-                  shrinkWrap: true,
-                  itemCount: imageFiles.length,
-                  itemBuilder: ((context, index) {
-                    return Row(
-                      children: <Widget>[
-                        Container(
-                          alignment: Alignment.bottomLeft,
-                          child: imageFiles[index] == null
-                              ? const Text("No image captured")
-                              : imageFiles.length - 1 == index
-                                  ? ScaleTransition(
-                                      scale: scaleAnimation,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            showThumbnails = false; // Hide thumbnails
-                                          });
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder:
-                                                      (BuildContext context) =>
-                                                          ImagePreviewView(
-                                                            File(imageFiles[index]
-                                                                .path),
-                                                            "",
-                                                          )));
-                                        },
-                                        child: Stack(
-                                          children: [
-                                            Image.file(
-                                              File(
-                                                imageFiles[index].path,
-                                              ),
-                                              height: 10,
-                                              width: 10,
-                                            ),
-                                            Positioned(
-                                              top: 0,
-                                              right: 0,
-                                              child: GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    removeImage();
-                                                  });
-                                                },
-                                                child: Image.network(
-                                                  "https://logowik.com/content/uploads/images/close1437.jpg",
-                                                  height: 10,
-                                                  width: 10,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  : GestureDetector(
+              ListView.builder(
+                padding: const EdgeInsets.only(bottom: 100),
+                shrinkWrap: true,
+                itemCount: imageFiles.length,
+                itemBuilder: ((context, index) {
+                  return Row(
+                    children: <Widget>[
+                      Container(
+                        alignment: Alignment.bottomLeft,
+                        // ignore: unnecessary_null_comparison
+                        child: imageFiles[index] == null
+                            ? const Text("No image captured")
+                            : imageFiles.length - 1 == index
+                                ? ScaleTransition(
+                                    scale: scaleAnimation,
+                                    child: GestureDetector(
                                       onTap: () {
-                                        setState(() {
-                                          showThumbnails = false; // Hide thumbnails
-                                        });
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (BuildContext context) =>
-                                                    ImagePreviewView(
-                                                      File(
-                                                          imageFiles[index].path),
-                                                      "",
-                                                    )));
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        ImagePreviewView(
+                                                          File(imageFiles[index]
+                                                              .path),
+                                                          "",
+                                                        )));
                                       },
-                                      child: Image.file(
-                                        File(
-                                          imageFiles[index].path,
-                                        ),
-                                        height: 90,
-                                        width: 60,
+                                      child: Stack(
+                                        children: [
+                                          Image.file(
+                                            File(
+                                              imageFiles[index].path,
+                                            ),
+                                            height: 90,
+                                            width: 60,
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  removeImage();
+                                                });
+                                              },
+                                              child: Image.network(
+                                                "https://logowik.com/content/uploads/images/close1437.jpg",
+                                                height: 30,
+                                                width: 30,
+                                              ),
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ),
-                        )
-                      ],
-                    );
-                  }),
-                  scrollDirection: Axis.horizontal,
-                ),
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  ImagePreviewView(
+                                                    File(
+                                                        imageFiles[index].path),
+                                                    "",
+                                                  )));
+                                    },
+                                    child: Image.file(
+                                      File(
+                                        imageFiles[index].path,
+                                      ),
+                                      height: 90,
+                                      width: 60,
+                                    ),
+                                  ),
+                      )
+                    ],
+                  );
+                }),
+                scrollDirection: Axis.horizontal,
+              ),
               Positioned(
                 right:
                     MediaQuery.of(context).orientation == Orientation.portrait
@@ -304,6 +299,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
 
     try {
       await _controller!.initialize();
+      // ignore: empty_catches
     } on CameraException {}
     if (mounted) {
       setState(() {});
