@@ -26,7 +26,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController controller;
   late Animation<double> scaleAnimation;
-  bool showThumbnails = false; // To toggle the visibility of thumbnails
+  bool showThumbnails = true; // To toggle the visibility of thumbnails
 
   addImages(XFile image) {
     setState(() {
