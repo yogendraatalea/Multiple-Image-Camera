@@ -108,84 +108,52 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
             height: double.infinity,
             child: Stack(fit: StackFit.expand, children: [
               CameraPreview(_controller!),
-              ListView.builder(
-                padding: const EdgeInsets.only(bottom: 100),
-                shrinkWrap: true,
-                itemCount: imageFiles.length,
-                itemBuilder: ((context, index) {
-                  return Row(
-                    children: <Widget>[
-                      Container(
-                        alignment: Alignment.bottomLeft,
-                        // ignore: unnecessary_null_comparison
-                        child: imageFiles[index] == null
-                            ? const Text("No image captured")
-                            : imageFiles.length - 1 == index
-                                ? ScaleTransition(
-                                    scale: scaleAnimation,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        ImagePreviewView(
-                                                          File(imageFiles[index]
-                                                              .path),
-                                                          "",
-                                                        )));
-                                      },
-                                      child: Stack(
-                                        children: [
-                                          Image.file(
-                                           File(imageFiles[imageFiles.length - 1].path),
-                                            height: 90,
-                                            width: 60,
-                                          ),
-                                          Positioned(
-                                            top: 0,
-                                            right: 0,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  removeImage();
-                                                });
-                                              },
-                                              child: Image.network(
-                                                "https://logowik.com/content/uploads/images/close1437.jpg",
-                                                height: 30,
-                                                width: 30,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                : GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  ImagePreviewView(
-                                                   File(imageFiles[imageFiles.length - 1].path),));
-                                    },
-                                    child: Image.file(
-                                      File(
-                                        imageFiles[index].path,
-                                      ),
-                                      height: 90,
-                                      width: 60,
-                                    ),
-                                  ),
-                      )
-                    ],
+                if (_lastCapturedImage != null)
+            Positioned(
+              bottom: 100,
+              left: 20,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ImagePreviewView(
+                        File(_lastCapturedImage!.path),
+                        "",
+                      ),
+                    ),
                   );
-                }),
-                scrollDirection: Axis.horizontal,
+                },
+                child: Stack(
+                  children: [
+                    ScaleTransition(
+                      scale: scaleAnimation,
+                      child: Image.file(
+                        File(_lastCapturedImage!.path),
+                        height: 90,
+                        width: 60,
+                      ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _lastCapturedImage = null;
+                          });
+                        },
+                        child: Icon(
+                          Icons.close,
+                          size: 30,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ),
               Positioned(
                 right:
                     MediaQuery.of(context).orientation == Orientation.portrait
@@ -304,20 +272,22 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     }
   }
 
-  takePicture() async {
-    if (_controller!.value.isTakingPicture) {
-      return null;
-    }
-    try {
-      final image = await _controller!.takePicture();
-      setState(() {
-        addImages(image);
-        HapticFeedback.lightImpact();
-      });
-    } on CameraException {
-      return null;
-    }
+ takePicture() async {
+  if (_controller!.value.isTakingPicture) {
+    return null;
   }
+  try {
+    final image = await _controller!.takePicture();
+    setState(() {
+      // Store only the last captured image
+      _lastCapturedImage = image; 
+
+      HapticFeedback.lightImpact();
+    });
+  } on CameraException {
+    return null;
+  }
+}
 
   @override
   Widget build(BuildContext context) {
