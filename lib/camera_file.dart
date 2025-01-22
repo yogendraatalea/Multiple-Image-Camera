@@ -139,9 +139,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                       child: Stack(
                                         children: [
                                           Image.file(
-                                            File(
-                                              imageFiles[index].path,
-                                            ),
+                                           File(imageFiles[imageFiles.length - 1].path),
                                             height: 90,
                                             width: 60,
                                           ),
@@ -172,10 +170,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                           MaterialPageRoute(
                                               builder: (BuildContext context) =>
                                                   ImagePreviewView(
-                                                    File(
-                                                        imageFiles[index].path),
-                                                    "",
-                                                  )));
+                                                   File(imageFiles[imageFiles.length - 1].path),));
                                     },
                                     child: Image.file(
                                       File(
