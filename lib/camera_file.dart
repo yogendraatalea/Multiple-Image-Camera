@@ -141,8 +141,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                               File(
                                                 imageFiles[index].path,
                                               ),
-                                              height: 10,
-                                              width: 10,
+                                              height: 40,
+                                              width: 50,
                                             ),
                                             Positioned(
                                               top: 0,
@@ -183,8 +183,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                         File(
                                           imageFiles[index].path,
                                         ),
-                                        height: 10,
-                                        width: 10,
+                                        height: 50,
+                                        width: 50,
                                       ),
                                     ),
                         )
@@ -247,8 +247,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                     child: Padding(
                                       padding: const EdgeInsets.all(2.0),
                                       child: Container(
-                                        height: 30,
-                                        width: 30,
+                                        height: 10,
+                                        width: 10,
                                         decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
@@ -267,8 +267,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                     child: Padding(
                                       padding: const EdgeInsets.all(2.0),
                                       child: Container(
-                                        height: 30,
-                                        width: 30,
+                                        height: 10,
+                                        width: 10,
                                         decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
