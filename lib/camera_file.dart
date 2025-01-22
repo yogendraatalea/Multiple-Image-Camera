@@ -38,6 +38,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
         ..addListener(() {});
       _animationController.forward();
     });
+ for (var img in imageFiles) {
+    print("Image file path: ${img.path}");
+  }
   }
 
   removeImage() {
