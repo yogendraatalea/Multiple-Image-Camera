@@ -30,6 +30,20 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   addImages(XFile image) {
     setState(() {
       imageFiles.add(image);
+List<Map<String, dynamic>> imageData = imageFiles.map((file) {
+      return {
+        'path': file.path,   // The file path (or any other properties you need)
+        'name': file.name,   // The file name
+        'length': file.lengthSync() // File size (optional, can be removed)
+      };
+    }).toList();
+
+    // Convert to JSON string
+    String jsonString = jsonEncode(imageData);
+
+    // Print or return the JSON string
+    print('Image Files in JSON format: $jsonString');
+  });
       _animationController = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 1500));
       animation = Tween<double>(begin: 400, end: 1).animate(scaleAnimation =
@@ -124,12 +138,14 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                       onTap: () {
                                         Navigator.push(
                                             context,
-                                          MaterialPageRoute(
-  builder: (BuildContext context) => ImagePreviewView(
-    File(imageFiles[index].path), // Pass the selected image
-    index, // Pass the selected index
-  ),
-);
+                                            MaterialPageRoute(
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        ImagePreviewView(
+                                                          File(imageFiles[index]
+                                                              .path),
+                                                          "",
+                                                        )));
                                       },
                                       child: Stack(
                                         children: [
