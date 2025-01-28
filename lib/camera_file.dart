@@ -281,6 +281,25 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                           takePicture();
                         },
                       ),
+ const SizedBox(width: 20),
+      ElevatedButton(
+              onPressed: () {
+                // Define the behavior of your button here
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Captured image!')),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white.withOpacity(0.8),
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(16),
+              ),
+              child: const Icon(
+                Icons.refresh,
+                color: Colors.black,
+                size: 30,
+              ),
+            ),
                     ),
                   ],
                 ),
