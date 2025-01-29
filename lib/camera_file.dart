@@ -111,7 +111,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
             child: Stack(fit: StackFit.expand, children: [
               CameraPreview(_controller!),
               ListView.builder(
-                padding: const EdgeInsets.only(bottom: 100),
+                padding: const EdgeInsets.only(bottom: 10),
                 shrinkWrap: true,
                 itemCount: thumbnailimage.length,
                 itemBuilder: ((context, index) {
@@ -145,12 +145,12 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                             // Thumbnail with border radius
                                             ClipRRect(
                                               borderRadius:
-                                                  BorderRadius.circular(4),
+                                                  BorderRadius.circular(10),
                                               child: Image.file(
                                                 File(
                                                     thumbnailimage[index].path),
-                                                height: 90,
-                                                width: 60,
+                                                height: 58,
+                                                width: 58,
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
@@ -215,12 +215,12 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                 scrollDirection: Axis.horizontal,
               ),
               Positioned(
-                right:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 340
-                        : null,
+                // right:
+                //     MediaQuery.of(context).orientation == Orientation.portrait
+                //         ? 340
+                //         : null,
                 bottom: 0,
-                left: 0,
+                right: 0,
                 child: IconButton(
                   iconSize: 40,
                   icon: const Icon(
