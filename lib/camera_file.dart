@@ -31,9 +31,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   addImages(XFile image) {
     setState(() {
       imageFiles.add(image);
-       thumbnailimage.clear();
-   thumbnailimage.insert(0, image);
-   print('thumbnailimage.length ${thumbnailimage.length}');
+      thumbnailimage.clear();
+      thumbnailimage.insert(0, image);
+      print('thumbnailimage.length ${thumbnailimage.length}');
       _animationController = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 1500));
       animation = Tween<double>(begin: 400, end: 1).animate(scaleAnimation =
@@ -46,7 +46,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
 
   removeImage() {
     setState(() {
-      imageFiles.removeLast();
+      // imageFiles.removeLast();
+      thumbnailimage.removeLast();
     });
   }
 
@@ -129,40 +130,61 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        ImagePreviewView(
-                                                          File(thumbnailimage[index]
-                                                              .path),
-                                                          "",
-                                                        )));
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    ImagePreviewView(
+                                                      File(thumbnailimage[index]
+                                                          .path),
+                                                      "",
+                                                    )));
                                       },
-                                      child: Stack(
-                                        children: [
-                                          Image.file(
-                                            File(
-                                              thumbnailimage[0].path,
-                                            ),
-                                            height: 90,
-                                            width: 60,
-                                          ),
-                                          Positioned(
-                                            top: 0,
-                                            right: 0,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  removeImage();
-                                                });
-                                              },
-                                              child: Image.network(
-                                                "https://logowik.com/content/uploads/images/close1437.jpg",
-                                                height: 30,
-                                                width: 30,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Stack(
+                                          children: [
+                                            // Thumbnail with border radius
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              child: Image.file(
+                                                File(
+                                                    thumbnailimage[index].path),
+                                                height: 90,
+                                                width: 60,
+                                                fit: BoxFit.cover,
                                               ),
                                             ),
-                                          )
-                                        ],
+                                            Positioned(
+                                                top: 0,
+                                                right: 0,
+                                                child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        removeImage();
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape
+                                                            .circle, // Circular shape for the close icon
+                                                        color: Colors
+                                                            .white, // Background color for the icon
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(4.0),
+                                                        child: Image.network(
+                                                          "https://logowik.com/content/uploads/images/close1437.jpg",
+                                                          height:
+                                                              15, // Smaller size for the close icon
+                                                          width:
+                                                              15, // Smaller size for the close icon
+                                                        ),
+                                                      ),
+                                                    )))
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   )
@@ -173,8 +195,8 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                           MaterialPageRoute(
                                               builder: (BuildContext context) =>
                                                   ImagePreviewView(
-                                                    File(
-                                                        thumbnailimage[index].path),
+                                                    File(thumbnailimage[index]
+                                                        .path),
                                                     "",
                                                   )));
                                     },
