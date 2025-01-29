@@ -320,17 +320,6 @@
           addImages(image);
           HapticFeedback.lightImpact();
         });
-  if (imageFiles.isNotEmpty) {
-      print("Last captured image: ${imageFiles.last}");
-      print("Image path: ${imageFiles.last.path}");
-print("Image path1: ${imageFiles.length -1.path}");
-print("Image path length: ${imageFiles.length -1}");
-print("Image path path and length: ${imageFiles.path.length -1}");
-    }
-  } on CameraException catch (e) {
-    print("Error capturing image: $e");
-    return null;
-  }
       } on CameraException {
         return null;
       }
