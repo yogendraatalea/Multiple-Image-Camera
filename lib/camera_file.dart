@@ -203,24 +203,27 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
               },
               scrollDirection: Axis.horizontal,
             ),
-            SafeArea(
-              child: Stack(
-                children: [
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: IconButton(
-                      iconSize: 40,
-                      icon: const Icon(
-                        Icons.camera_front,
-                        color: Colors.white,
+Platform.isIOS
+              ? SafeArea(
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: IconButton(
+                          iconSize: 40,
+                          icon: const Icon(
+                            Icons.camera_front,
+                            color: Colors.white,
+                          ),
+                          onPressed: _onCameraSwitch,
+                        ),
                       ),
-                      onPressed: _onCameraSwitch,
-                    ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                )
+              : Container(),
+
             Positioned(
               left: MediaQuery.of(context).orientation == Orientation.portrait ? 0 : null,
               bottom: MediaQuery.of(context).orientation == Orientation.portrait
