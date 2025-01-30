@@ -33,7 +33,6 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       imageFiles.add(image);
       thumbnailimage.clear();
       thumbnailimage.insert(0, image);
-      print('thumbnailimage.length ${thumbnailimage.length}');
       _animationController = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 1500));
       animation = Tween<double>(begin: 400, end: 1).animate(scaleAnimation =
@@ -46,7 +45,6 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
 
   removeImage() {
     setState(() {
-      // imageFiles.removeLast();
       thumbnailimage.removeLast();
     });
   }
@@ -75,8 +73,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
 
   Future<void> _initCamera() async {
     _cameras = await availableCameras();
-    // ignore: unnecessary_null_comparison
-    if (_cameras != null) {
+    if (_cameras.isNotEmpty) {
       _controller = CameraController(_cameras[0], ResolutionPreset.ultraHigh,
           enableAudio: false);
       _controller!.initialize().then((_) {
@@ -85,233 +82,221 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
         }
         setState(() {});
       });
-    } else {}
+    }
   }
 
   @override
   void initState() {
     _initCamera();
     _currIndex = 0;
-
     super.initState();
   }
 
   Widget _buildCameraPreview() {
     return GestureDetector(
-        onScaleStart: (details) {
-          zoom = _scaleFactor;
-        },
-        onScaleUpdate: (details) {
-          _scaleFactor = zoom * details.scale;
-          _controller!.setZoomLevel(_scaleFactor);
-        },
-        child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Stack(fit: StackFit.expand, children: [
-              CameraPreview(_controller!),
-              ListView.builder(
-                padding: const EdgeInsets.only(bottom: 10),
-                shrinkWrap: true,
-                itemCount: thumbnailimage.length,
-                itemBuilder: ((context, index) {
-                  return Row(
-                    children: <Widget>[
-                      Container(
-                        alignment: Alignment.bottomLeft,
-                        // ignore: unnecessary_null_comparison
-                        child: thumbnailimage[index] == null
-                            ? const Text("No image captured")
-                            : thumbnailimage.length - 1 == index
-                                ? ScaleTransition(
-                                    scale: scaleAnimation,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (BuildContext
-                                                        context) =>
-                                                    ImagePreviewView(
-                                                      File(thumbnailimage[index]
-                                                          .path),
-                                                      "",
-                                                    )));
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Stack(
-clipBehavior: Clip.none, 
-                                          children: [
-                                            // Thumbnail with border radius
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              child: Image.file(
-                                                File(
-                                                    thumbnailimage[index].path),
-                                                height: 58,
-                                                width: 58,
-                                                fit: BoxFit.cover,
-gaplessPlayback: true, 
-                                              ),
-                                            ),
-                                            Positioned(
-                                                top: 0,
-                                                right: 0,
-                                                child: GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        removeImage();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape
-                                                            .circle, // Circular shape for the close icon
-                                                        color: Colors
-                                                            .white, // Background color for the icon
-                                                      ),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(4.0),
-                                                        child: Image.network(
-                                                          "https://logowik.com/content/uploads/images/close1437.jpg",
-                                                          height:
-                                                              15, // Smaller size for the close icon
-                                                          width:
-                                                              15, // Smaller size for the close icon
-                                                        ),
-                                                      ),
-                                                    )))
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : GestureDetector(
+      onScaleStart: (details) {
+        zoom = _scaleFactor;
+      },
+      onScaleUpdate: (details) {
+        _scaleFactor = zoom * details.scale;
+        _controller!.setZoomLevel(_scaleFactor);
+      },
+      child: SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CameraPreview(_controller!),
+            ListView.builder(
+              padding: const EdgeInsets.only(bottom: 10),
+              shrinkWrap: true,
+              itemCount: thumbnailimage.length,
+              itemBuilder: (context, index) {
+                return Row(
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.bottomLeft,
+                      child: thumbnailimage.isEmpty
+                          ? const Text("No image captured")
+                          : thumbnailimage.length - 1 == index
+                              ? ScaleTransition(
+                                  scale: scaleAnimation,
+                                  child: GestureDetector(
                                     onTap: () {
                                       Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  ImagePreviewView(
-                                                    File(thumbnailimage[index]
-                                                        .path),
-                                                    "",
-                                                  )));
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ImagePreviewView(
+                                            File(thumbnailimage[index].path),
+                                            "",
+                                          ),
+                                        ),
+                                      );
                                     },
-                                    child: Image.file(
-                                      File(
-                                        thumbnailimage[index].path,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(10),
+                                            child: Image.file(
+                                              File(thumbnailimage[index].path),
+                                              height: 58,
+                                              width: 58,
+                                              fit: BoxFit.cover,
+                                              gaplessPlayback: true,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  removeImage();
+                                                });
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.white,
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4.0),
+                                                  child: Image.network(
+                                                    "https://logowik.com/content/uploads/images/close1437.jpg",
+                                                    height: 15,
+                                                    width: 15,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                      height: 90,
-                                      width: 60,
                                     ),
                                   ),
-                      )
-                    ],
-                  );
-                }),
-                scrollDirection: Axis.horizontal,
-              ),
-              SafeArea(
-  child: Stack(
-    children: [
-      Positioned(
-        bottom: 0, // Adjust to keep it above the home bar
-        right: 0,  // Add some padding
-        child: IconButton(
-          iconSize: 40,
-          icon: const Icon(
-            Icons.camera_front,
-            color: Colors.white,
-          ),
-          onPressed: _onCameraSwitch,
-        ),
-      ),
-    ],
-  ),
-)
-
-              Positioned(
-                left: MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 0
-                    : null,
-                bottom:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 0
-                        : MediaQuery.of(context).size.height / 2.5,
-                right: 0,
-                child: Column(
-                  children: [
-                    SafeArea(
-                      child: IconButton(
-                        iconSize: 80,
-                        icon: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, anim) =>
-                                RotationTransition(
-                                  turns: child.key == const ValueKey('icon1')
-                                      ? Tween<double>(begin: 1, end: 0.75)
-                                          .animate(anim)
-                                      : Tween<double>(begin: 0.75, end: 1)
-                                          .animate(anim),
-                                  child: ScaleTransition(
-                                      scale: anim, child: child),
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ImagePreviewView(
+                                          File(thumbnailimage[index].path),
+                                          "",
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Image.file(
+                                    File(thumbnailimage[index].path),
+                                    height: 90,
+                                    width: 60,
+                                  ),
                                 ),
-                            child: _currIndex == 0
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    key: const ValueKey("icon1"),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    key: const ValueKey("icon2"),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  )),
-                        onPressed: () {
-                          _currIndex = _currIndex == 0 ? 1 : 0;
-                          takePicture();
-                        },
-                      ),
                     ),
                   ],
-                ),
-              )
-            ])));
+                );
+              },
+              scrollDirection: Axis.horizontal,
+            ),
+            SafeArea(
+              child: Stack(
+                children: [
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: IconButton(
+                      iconSize: 40,
+                      icon: const Icon(
+                        Icons.camera_front,
+                        color: Colors.white,
+                      ),
+                      onPressed: _onCameraSwitch,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: MediaQuery.of(context).orientation == Orientation.portrait ? 0 : null,
+              bottom: MediaQuery.of(context).orientation == Orientation.portrait
+                  ? 0
+                  : MediaQuery.of(context).size.height / 2.5,
+              right: 0,
+              child: Column(
+                children: [
+                  SafeArea(
+                    child: IconButton(
+                      iconSize: 80,
+                      icon: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (child, anim) => RotationTransition(
+                          turns: child.key == const ValueKey('icon1')
+                              ? Tween<double>(begin: 1, end: 0.75).animate(anim)
+                              : Tween<double>(begin: 0.75, end: 1).animate(anim),
+                          child: ScaleTransition(scale: anim, child: child),
+                        ),
+                        child: _currIndex == 0
+                            ? Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.white,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                key: const ValueKey("icon1"),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.white,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                key: const ValueKey("icon2"),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _currIndex = _currIndex == 0 ? 1 : 0;
+                        });
+                        takePicture();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _onCameraSwitch() async {
@@ -320,17 +305,14 @@ gaplessPlayback: true,
     if (_controller != null) {
       await _controller!.dispose();
     }
-    _controller = CameraController(
-        cameraDescription, ResolutionPreset.ultraHigh,
+    _controller = CameraController(cameraDescription, ResolutionPreset.ultraHigh,
         enableAudio: false);
     _controller!.addListener(() {
       if (mounted) setState(() {});
-      if (_controller!.value.hasError) {}
     });
 
     try {
       await _controller!.initialize();
-      // ignore: empty_catches
     } on CameraException {}
     if (mounted) {
       setState(() {});
@@ -367,6 +349,7 @@ gaplessPlayback: true,
         ),
       );
     }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -381,36 +364,14 @@ gaplessPlayback: true,
                     }
                     Navigator.pop(context, imageList);
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: _animatedButton(customContent: widget.customButton),
-                  ))
-              : const SizedBox()
+                  child: _animatedButton())
+              : Container(),
         ],
-        elevation: 0,
         backgroundColor: Colors.transparent,
+        elevation: 0.0,
       ),
-      backgroundColor: Theme.of(context).colorScheme.background,
-      extendBody: true,
+      backgroundColor: Colors.black,
       body: _buildCameraPreview(),
     );
   }
-
-  @override
-  void dispose() {
-    if (_controller != null) {
-      _controller!.dispose();
-    } else {
-      _animationController.dispose();
-    }
-
-    super.dispose();
-  }
-}
-
-class MediaModel {
-  File file;
-  String filePath;
-  Uint8List blobImage;
-  MediaModel.blob(this.file, this.filePath, this.blobImage);
 }
