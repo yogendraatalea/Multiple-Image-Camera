@@ -141,6 +141,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Stack(
+clipBehavior: Clip.none, 
                                           children: [
                                             // Thumbnail with border radius
                                             ClipRRect(
@@ -152,6 +153,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                                                 height: 58,
                                                 width: 58,
                                                 fit: BoxFit.cover,
+gaplessPlayback: true, 
                                               ),
                                             ),
                                             Positioned(
@@ -214,22 +216,25 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                 }),
                 scrollDirection: Axis.horizontal,
               ),
-              Positioned(
-                // right:
-                //     MediaQuery.of(context).orientation == Orientation.portrait
-                //         ? 340
-                //         : null,
-                bottom: 0,
-                right: 0,
-                child: IconButton(
-                  iconSize: 40,
-                  icon: const Icon(
-                    Icons.camera_front,
-                    color: Colors.white,
-                  ),
-                  onPressed: _onCameraSwitch,
-                ),
-              ),
+              SafeArea(
+  child: Stack(
+    children: [
+      Positioned(
+        bottom: 0, // Adjust to keep it above the home bar
+        right: 0,  // Add some padding
+        child: IconButton(
+          iconSize: 40,
+          icon: const Icon(
+            Icons.camera_front,
+            color: Colors.white,
+          ),
+          onPressed: _onCameraSwitch,
+        ),
+      ),
+    ],
+  ),
+)
+
               Positioned(
                 left: MediaQuery.of(context).orientation == Orientation.portrait
                     ? 0
