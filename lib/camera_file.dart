@@ -101,10 +101,22 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
         onScaleStart: (details) {
           zoom = _scaleFactor;
         },
+       
         onScaleUpdate: (details) {
-          _scaleFactor = zoom * details.scale;
-          _controller!.setZoomLevel(_scaleFactor);
-        },
+  // Calculate the zoom level
+  _scaleFactor = zoom * details.scale;
+
+  // Ensure the zoom level stays within valid bounds (1.0 to 10.0)
+  if (_scaleFactor < 1.0) {
+    _scaleFactor = 1.0;
+  } else if (_scaleFactor > 10.0) {
+    _scaleFactor = 10.0;
+  }
+
+  // Apply the zoom level to the camera
+  _controller!.setZoomLevel(_scaleFactor);
+},
+
         child: SizedBox(
             width: double.infinity,
             height: double.infinity,
@@ -214,26 +226,22 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                 }),
                 scrollDirection: Axis.horizontal,
               ),
-              Platform.isIOS
-              ? SafeArea(
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton(
-                          iconSize: 40,
-                          icon: const Icon(
-                            Icons.camera_front,
-                            color: Colors.white,
-                          ),
-                          onPressed: _onCameraSwitch,
-                        ),
-                      ),
-                    ],
+              Positioned(
+                // right:
+                //     MediaQuery.of(context).orientation == Orientation.portrait
+                //         ? 340
+                //         : null,
+                bottom: 0,
+                right: 0,
+                child: IconButton(
+                  iconSize: 40,
+                  icon: const Icon(
+                    Icons.camera_front,
+                    color: Colors.white,
                   ),
-                )
-              : Container(),
+                  onPressed: _onCameraSwitch,
+                ),
+              ),
               Positioned(
                 left: MediaQuery.of(context).orientation == Orientation.portrait
                     ? 0
