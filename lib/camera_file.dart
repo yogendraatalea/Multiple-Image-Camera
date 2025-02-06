@@ -52,23 +52,26 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   }
 
   Widget? _animatedButton({Widget? customContent}) {
-    return customContent != null
-        ? customContent
-        : Container(
-            height: 70,
-            width: 150,
+    return customContent ?? Container(
+            width: 100,
+            height: 45,
             decoration: BoxDecoration(
               color: Colors.white38,
               borderRadius: BorderRadius.circular(100.0),
             ),
+            
             child: const Center(
+              
               child: Text(
                 'Done',
                 style: TextStyle(
-                    fontSize: 20.0,
+                    fontSize: 18.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black),
+                    color: Colors.black,
+                    decoration: TextDecoration.none,
+                    ),
               ),
+              
             ),
           );
   }
@@ -97,7 +100,10 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   }
 
   Widget _buildCameraPreview() {
-    return GestureDetector(
+    return Scaffold(
+        extendBodyBehindAppBar: true,
+        body: SafeArea(child: GestureDetector(
+         
         onScaleStart: (details) {
           zoom = _scaleFactor;
         },
@@ -318,9 +324,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                   ],
                 ),
               )
-            ])));
+            ])))),
+    );
   }
-
   Future<void> _onCameraSwitch() async {
     final CameraDescription cameraDescription =
         (_controller!.description == _cameras[0]) ? _cameras[1] : _cameras[0];
@@ -374,33 +380,37 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
         ),
       );
     }
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        actions: [
-          imageFiles.isNotEmpty
-              ? GestureDetector(
-                  onTap: () {
-                    for (int i = 0; i < imageFiles.length; i++) {
-                      File file = File(imageFiles[i].path);
-                      imageList.add(
-                          MediaModel.blob(file, "", file.readAsBytesSync()));
-                    }
-                    Navigator.pop(context, imageList);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: _animatedButton(customContent: widget.customButton),
-                  ))
-              : const SizedBox()
-        ],
-        elevation: 0,
-        backgroundColor: Colors.transparent,
+    return Stack(
+  children: [
+    _buildCameraPreview(),
+    Positioned(
+      top: 50, // Adjust positioning as needed
+      left: 16,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pop(context); // Navigate back when tapped
+        },
+        child: Icon(Icons.arrow_back, color: Colors.black, size: 30),
       ),
-      backgroundColor: Theme.of(context).colorScheme.background,
-      extendBody: true,
-      body: _buildCameraPreview(),
-    );
+    ), // This will be your camera preview as the background
+    if (imageFiles.isNotEmpty)
+      Positioned(
+        top: 50, // Adjust positioning as needed
+        right: 16,
+        child: GestureDetector(
+          onTap: () {
+            for (int i = 0; i < imageFiles.length; i++) {
+              File file = File(imageFiles[i].path);
+              imageList.add(MediaModel.blob(file, "", file.readAsBytesSync()));
+            }
+            Navigator.pop(context, imageList);
+          },
+          child: _animatedButton(customContent: widget.customButton),
+        ),
+      ),
+  ],
+);
+
   }
 
   @override
