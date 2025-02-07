@@ -99,234 +99,117 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     super.initState();
   }
 
-  Widget _buildCameraPreview() {
-    return Scaffold(
-        extendBodyBehindAppBar: true,
-        body: SafeArea(child: GestureDetector(
-         
-        onScaleStart: (details) {
-          zoom = _scaleFactor;
-        },
-       
-        onScaleUpdate: (details) {
-  // Calculate the zoom level
-  _scaleFactor = zoom * details.scale;
+ Widget _buildCameraPreview() {
+  return Scaffold(
+    extendBodyBehindAppBar: true,
+    body: Container(
+      color: Colors.black, // Helps avoid iOS layout flickering
+      child: SafeArea(
+        child: GestureDetector(
+          onScaleStart: (details) => zoom = _scaleFactor,
+          onScaleUpdate: (details) {
+            _scaleFactor = (zoom * details.scale).clamp(1.0, 10.0);
+            if (_controller!.value.isInitialized) {
+              _controller!.setZoomLevel(_scaleFactor);
+            }
+          },
+          child: Stack(
+            children: [
+              if (_controller != null && _controller!.value.isInitialized)
+                CameraPreview(_controller!)
+              else
+                const Center(child: CircularProgressIndicator()),
 
-  // Ensure the zoom level stays within valid bounds (1.0 to 10.0)
-  if (_scaleFactor < 1.0) {
-    _scaleFactor = 1.0;
-  } else if (_scaleFactor > 10.0) {
-    _scaleFactor = 10.0;
-  }
-
-  // Apply the zoom level to the camera
-  _controller!.setZoomLevel(_scaleFactor);
-},
-
-        child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Stack(fit: StackFit.expand, children: [
-              CameraPreview(_controller!),
-              ListView.builder(
-                padding: const EdgeInsets.only(bottom: 10),
-                shrinkWrap: true,
-                itemCount: thumbnailimage.length,
-                itemBuilder: ((context, index) {
-                  return Row(
-                    children: <Widget>[
-                      Container(
-                        alignment: Alignment.bottomLeft,
-                        // ignore: unnecessary_null_comparison
-                        child: thumbnailimage[index] == null
-                            ? const Text("No image captured")
-                            : thumbnailimage.length - 1 == index
-                                ? ScaleTransition(
-                                    scale: scaleAnimation,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (BuildContext
-                                                        context) =>
-                                                    ImagePreviewView(
-                                                      File(thumbnailimage[index]
-                                                          .path),
-                                                      "",
-                                                    )));
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Stack(
-                                          children: [
-                                            // Thumbnail with border radius
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              child: Image.file(
-                                                File(
-                                                    thumbnailimage[index].path),
-                                                height: 58,
-                                                width: 58,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            Positioned(
-                                                top: 0,
-                                                right: 0,
-                                                child: GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        removeImage();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape
-                                                            .circle, // Circular shape for the close icon
-                                                        color: Colors
-                                                            .white, // Background color for the icon
-                                                      ),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(4.0),
-                                                        child: Image.network(
-                                                          "https://logowik.com/content/uploads/images/close1437.jpg",
-                                                          height:
-                                                              15, // Smaller size for the close icon
-                                                          width:
-                                                              15, // Smaller size for the close icon
-                                                        ),
-                                                      ),
-                                                    )))
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  ImagePreviewView(
-                                                    File(thumbnailimage[index]
-                                                        .path),
-                                                    "",
-                                                  )));
-                                    },
-                                    child: Image.file(
-                                      File(
-                                        thumbnailimage[index].path,
-                                      ),
-                                      height: 90,
-                                      width: 60,
-                                    ),
-                                  ),
-                      )
-                    ],
-                  );
-                }),
-                scrollDirection: Axis.horizontal,
-              ),
+              // Thumbnail List
               Positioned(
-                // right:
-                //     MediaQuery.of(context).orientation == Orientation.portrait
-                //         ? 340
-                //         : null,
-                bottom: 0,
-                right: 0,
-                child: IconButton(
-                  iconSize: 40,
-                  icon: const Icon(
-                    Icons.camera_front,
-                    color: Colors.white,
+                bottom: 10,
+                child: SizedBox(
+                  height: 90,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(left: 10),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: thumbnailimage.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ImagePreviewView(
+                                File(thumbnailimage[index].path),
+                                "",
+                              ),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(
+                              File(thumbnailimage[index].path),
+                              height: 58,
+                              width: 58,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: _onCameraSwitch,
                 ),
               ),
-              Positioned(
-                left: MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 0
-                    : null,
-                bottom:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 0
-                        : MediaQuery.of(context).size.height / 2.5,
-                right: 0,
-                child: Column(
-                  children: [
-                    SafeArea(
-                      child: IconButton(
-                        iconSize: 80,
-                        icon: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, anim) =>
-                                RotationTransition(
-                                  turns: child.key == const ValueKey('icon1')
-                                      ? Tween<double>(begin: 1, end: 0.75)
-                                          .animate(anim)
-                                      : Tween<double>(begin: 0.75, end: 1)
-                                          .animate(anim),
-                                  child: ScaleTransition(
-                                      scale: anim, child: child),
-                                ),
-                            child: _currIndex == 0
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    key: const ValueKey("icon1"),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Colors.white,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    key: const ValueKey("icon2"),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Container(
-                                        height: 50,
-                                        width: 50,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  )),
-                        onPressed: () {
-                          _currIndex = _currIndex == 0 ? 1 : 0;
-                          takePicture();
-                        },
+
+              // Camera Switch Button
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: IconButton(
+                    iconSize: 40,
+                    icon: const Icon(Icons.camera_front, color: Colors.white),
+                    onPressed: _onCameraSwitch,
+                  ),
+                ),
+              ),
+
+              // Capture Button
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: IconButton(
+                    iconSize: 80,
+                    icon: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
+                    onPressed: takePicture,
+                  ),
                 ),
-              )
-            ])))),
-    );
-  }
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
   Future<void> _onCameraSwitch() async {
     final CameraDescription cameraDescription =
         (_controller!.description == _cameras[0]) ? _cameras[1] : _cameras[0];
@@ -365,96 +248,53 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     }
   }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     if (_controller != null) {
-//       if (!_controller!.value.isInitialized) {
-//         return Container();
-//       }
-//     } else {
-//       return const Center(
-//         child: SizedBox(
-//           width: 32,
-//           height: 32,
-//           child: CircularProgressIndicator(),
-//         ),
-//       );
-//     }
-//     return Stack(
-//   children: [
-//     _buildCameraPreview(),
-//     Positioned(
-//       top: 50, // Adjust positioning as needed
-//       left: 16,
-//       child: GestureDetector(
-//         onTap: () {
-//           Navigator.pop(context); // Navigate back when tapped
-//         },
-//         child: Icon(Icons.arrow_back, color: Colors.black, size: 30),
-//       ),
-//     ), // This will be your camera preview as the background
-//     if (imageFiles.isNotEmpty)
-//       Positioned(
-//         top: 50, // Adjust positioning as needed
-//         right: 16,
-//         child: GestureDetector(
-//           onTap: () {
-//             for (int i = 0; i < imageFiles.length; i++) {
-//               File file = File(imageFiles[i].path);
-//               imageList.add(MediaModel.blob(file, "", file.readAsBytesSync()));
-//             }
-//             Navigator.pop(context, imageList);
-//           },
-//           child: _animatedButton(customContent: widget.customButton),
-//         ),
-//       ),
-//   ],
-// );
-
-//   }
-
-
-@override
-Widget build(BuildContext context) {
-  if (_controller == null || !_controller!.value.isInitialized) {
-    return const Center(
-      child: SizedBox(
-        width: 32,
-        height: 32,
-        child: CircularProgressIndicator(),
+  @override
+  Widget build(BuildContext context) {
+    if (_controller != null) {
+      if (!_controller!.value.isInitialized) {
+        return Container();
+      }
+    } else {
+      return const Center(
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return Stack(
+  children: [
+    _buildCameraPreview(),
+    Positioned(
+      top: 50, // Adjust positioning as needed
+      left: 16,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.pop(context); // Navigate back when tapped
+        },
+        child: Icon(Icons.arrow_back, color: Colors.black, size: 30),
       ),
-    );
-  }
-
-  return Stack(
-    children: [
-      _buildCameraPreview(),
+    ), // This will be your camera preview as the background
+    if (imageFiles.isNotEmpty)
       Positioned(
-        top: 50,
-        left: 16,
+        top: 50, // Adjust positioning as needed
+        right: 16,
         child: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+          onTap: () {
+            for (int i = 0; i < imageFiles.length; i++) {
+              File file = File(imageFiles[i].path);
+              imageList.add(MediaModel.blob(file, "", file.readAsBytesSync()));
+            }
+            Navigator.pop(context, imageList);
+          },
+          child: _animatedButton(customContent: widget.customButton),
         ),
       ),
-      if (imageFiles.isNotEmpty)
-        Positioned(
-          top: 50,
-          right: 16,
-          child: GestureDetector(
-            onTap: () {
-              imageList = imageFiles.map((file) {
-                File imageFile = File(file.path);
-                return MediaModel.blob(imageFile, "", imageFile.readAsBytesSync());
-              }).toList();
-              Navigator.pop(context, imageList);
-            },
-            child: _animatedButton(customContent: widget.customButton),
-          ),
-        ),
-    ],
-  );
-}
+  ],
+);
+
+  }
 
   @override
   void dispose() {
