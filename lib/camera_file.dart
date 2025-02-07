@@ -365,53 +365,96 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_controller != null) {
-      if (!_controller!.value.isInitialized) {
-        return Container();
-      }
-    } else {
-      return const Center(
-        child: SizedBox(
-          width: 32,
-          height: 32,
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    return Stack(
-  children: [
-    _buildCameraPreview(),
-    Positioned(
-      top: 50, // Adjust positioning as needed
-      left: 16,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pop(context); // Navigate back when tapped
-        },
-        child: Icon(Icons.arrow_back, color: Colors.black, size: 30),
-      ),
-    ), // This will be your camera preview as the background
-    if (imageFiles.isNotEmpty)
-      Positioned(
-        top: 50, // Adjust positioning as needed
-        right: 16,
-        child: GestureDetector(
-          onTap: () {
-            for (int i = 0; i < imageFiles.length; i++) {
-              File file = File(imageFiles[i].path);
-              imageList.add(MediaModel.blob(file, "", file.readAsBytesSync()));
-            }
-            Navigator.pop(context, imageList);
-          },
-          child: _animatedButton(customContent: widget.customButton),
-        ),
-      ),
-  ],
-);
+//   @override
+//   Widget build(BuildContext context) {
+//     if (_controller != null) {
+//       if (!_controller!.value.isInitialized) {
+//         return Container();
+//       }
+//     } else {
+//       return const Center(
+//         child: SizedBox(
+//           width: 32,
+//           height: 32,
+//           child: CircularProgressIndicator(),
+//         ),
+//       );
+//     }
+//     return Stack(
+//   children: [
+//     _buildCameraPreview(),
+//     Positioned(
+//       top: 50, // Adjust positioning as needed
+//       left: 16,
+//       child: GestureDetector(
+//         onTap: () {
+//           Navigator.pop(context); // Navigate back when tapped
+//         },
+//         child: Icon(Icons.arrow_back, color: Colors.black, size: 30),
+//       ),
+//     ), // This will be your camera preview as the background
+//     if (imageFiles.isNotEmpty)
+//       Positioned(
+//         top: 50, // Adjust positioning as needed
+//         right: 16,
+//         child: GestureDetector(
+//           onTap: () {
+//             for (int i = 0; i < imageFiles.length; i++) {
+//               File file = File(imageFiles[i].path);
+//               imageList.add(MediaModel.blob(file, "", file.readAsBytesSync()));
+//             }
+//             Navigator.pop(context, imageList);
+//           },
+//           child: _animatedButton(customContent: widget.customButton),
+//         ),
+//       ),
+//   ],
+// );
 
+//   }
+
+
+@override
+Widget build(BuildContext context) {
+  if (_controller == null || !_controller!.value.isInitialized) {
+    return const Center(
+      child: SizedBox(
+        width: 32,
+        height: 32,
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
+
+  return Stack(
+    children: [
+      _buildCameraPreview(),
+      Positioned(
+        top: 50,
+        left: 16,
+        child: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+        ),
+      ),
+      if (imageFiles.isNotEmpty)
+        Positioned(
+          top: 50,
+          right: 16,
+          child: GestureDetector(
+            onTap: () {
+              imageList = imageFiles.map((file) {
+                File imageFile = File(file.path);
+                return MediaModel.blob(imageFile, "", imageFile.readAsBytesSync());
+              }).toList();
+              Navigator.pop(context, imageList);
+            },
+            child: _animatedButton(customContent: widget.customButton),
+          ),
+        ),
+    ],
+  );
+}
 
   @override
   void dispose() {
