@@ -4,15 +4,15 @@ import "package:flutter/material.dart";
 import "package:camera/camera.dart";
 import 'package:flutter/services.dart';
 import 'package:multiple_image_camera/image_preview.dart';
-
+ 
 class CameraFile extends StatefulWidget {
   final Widget? customButton;
   const CameraFile({super.key, this.customButton});
-
+ 
   @override
   State<CameraFile> createState() => _CameraFileState();
 }
-
+ 
 class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   double zoom = 0.0;
   double _scaleFactor = 1.0;
@@ -27,7 +27,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController controller;
   late Animation<double> scaleAnimation;
-
+ 
   addImages(XFile image) {
     setState(() {
       imageFiles.add(image);
@@ -43,14 +43,14 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       _animationController.forward();
     });
   }
-
+ 
   removeImage() {
     setState(() {
       // imageFiles.removeLast();
       thumbnailimage.removeLast();
     });
   }
-
+ 
   Widget? _animatedButton({Widget? customContent}) {
     return customContent ?? Container(
             width: 100,
@@ -59,9 +59,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
               color: Colors.white38,
               borderRadius: BorderRadius.circular(100.0),
             ),
-            
+           
             child: const Center(
-              
+             
               child: Text(
                 'Done',
                 style: TextStyle(
@@ -71,11 +71,11 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                     decoration: TextDecoration.none,
                     ),
               ),
-              
+             
             ),
           );
   }
-
+ 
   Future<void> _initCamera() async {
     _cameras = await availableCameras();
     // ignore: unnecessary_null_comparison
@@ -90,145 +90,243 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       });
     } else {}
   }
-
+ 
   @override
   void initState() {
     _initCamera();
     _currIndex = 0;
-
+ 
     super.initState();
   }
-
-
-
-Widget _buildCameraPreview() {
-  return Scaffold(
-    extendBodyBehindAppBar: true,
-    body: Container(
-      color: Colors.black, // Helps avoid flickering issues
-      child: SafeArea(
-        child: GestureDetector(
-          onScaleStart: (details) => zoom = _scaleFactor,
-          onScaleUpdate: (details) {
-            _scaleFactor = (zoom * details.scale).clamp(1.0, 10.0);
-            if (_controller!.value.isInitialized && Platform.isAndroid) {
-              _controller!.setZoomLevel(_scaleFactor);
-            }
-          },
-          child: Stack(
-            children: [
-              // Camera Preview (Fix for iOS using AspectRatio)
-              if (_controller != null && _controller!.value.isInitialized)
-                  Center(
-                    child: AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: CameraPreview(_controller!),
-                    ),
-                  )
-                    : CameraPreview(_controller!)
-              else
-                const Center(child: CircularProgressIndicator()),
-
-              // Thumbnail List
+ 
+  Widget _buildCameraPreview() {
+    return Scaffold(
+        extendBodyBehindAppBar: true,
+        body: SafeArea(child: GestureDetector(
+         
+        onScaleStart: (details) {
+          zoom = _scaleFactor;
+        },
+       
+        onScaleUpdate: (details) {
+  // Calculate the zoom level
+  _scaleFactor = zoom * details.scale;
+ 
+  // Ensure the zoom level stays within valid bounds (1.0 to 10.0)
+  if (_scaleFactor < 1.0) {
+    _scaleFactor = 1.0;
+  } else if (_scaleFactor > 10.0) {
+    _scaleFactor = 10.0;
+  }
+ 
+  // Apply the zoom level to the camera
+  _controller!.setZoomLevel(_scaleFactor);
+},
+ 
+        child: SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: Stack(fit: StackFit.expand, children: [
+              CameraPreview(_controller!),
+              ListView.builder(
+                padding: const EdgeInsets.only(bottom: 10),
+                shrinkWrap: true,
+                itemCount: thumbnailimage.length,
+                itemBuilder: ((context, index) {
+                  return Row(
+                    children: <Widget>[
+                      Container(
+                        alignment: Alignment.bottomLeft,
+                        // ignore: unnecessary_null_comparison
+                        child: thumbnailimage[index] == null
+                            ? const Text("No image captured")
+                            : thumbnailimage.length - 1 == index
+                                ? ScaleTransition(
+                                    scale: scaleAnimation,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    ImagePreviewView(
+                                                      File(thumbnailimage[index]
+                                                          .path),
+                                                      "",
+                                                    )));
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Stack(
+                                          children: [
+                                            // Thumbnail with border radius
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.file(
+                                                File(
+                                                    thumbnailimage[index].path),
+                                                height: 58,
+                                                width: 58,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Positioned(
+                                                top: 0,
+                                                right: 0,
+                                                child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        removeImage();
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape
+                                                            .circle, // Circular shape for the close icon
+                                                        color: Colors
+                                                            .white, // Background color for the icon
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(4.0),
+                                                        child: Image.network(
+                                                          "https://logowik.com/content/uploads/images/close1437.jpg",
+                                                          height:
+                                                              15, // Smaller size for the close icon
+                                                          width:
+                                                              15, // Smaller size for the close icon
+                                                        ),
+                                                      ),
+                                                    )))
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (BuildContext context) =>
+                                                  ImagePreviewView(
+                                                    File(thumbnailimage[index]
+                                                        .path),
+                                                    "",
+                                                  )));
+                                    },
+                                    child: Image.file(
+                                      File(
+                                        thumbnailimage[index].path,
+                                      ),
+                                      height: 90,
+                                      width: 60,
+                                    ),
+                                  ),
+                      )
+                    ],
+                  );
+                }),
+                scrollDirection: Axis.horizontal,
+              ),
               Positioned(
-                bottom: Platform.isIOS ? 20 : 10,
-                child: SizedBox(
-                  height: 90,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(left: 10),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: thumbnailimage.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ImagePreviewView(
-                                Platform.isIOS
-                                    ? File(thumbnailimage[index].path).absolute
-                                    : File(thumbnailimage[index].path),
-                                "",
-                              ),
-                            ),
-                          );
+                // right:
+                //     MediaQuery.of(context).orientation == Orientation.portrait
+                //         ? 340
+                //         : null,
+                bottom: 0,
+                right: 0,
+                child: IconButton(
+                  iconSize: 40,
+                  icon: const Icon(
+                    Icons.camera_front,
+                    color: Colors.white,
+                  ),
+                  onPressed: _onCameraSwitch,
+                ),
+              ),
+              Positioned(
+                left: MediaQuery.of(context).orientation == Orientation.portrait
+                    ? 0
+                    : null,
+                bottom:
+                    MediaQuery.of(context).orientation == Orientation.portrait
+                        ? 0
+                        : MediaQuery.of(context).size.height / 2.5,
+                right: 0,
+                child: Column(
+                  children: [
+                    SafeArea(
+                      child: IconButton(
+                        iconSize: 80,
+                        icon: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, anim) =>
+                                RotationTransition(
+                                  turns: child.key == const ValueKey('icon1')
+                                      ? Tween<double>(begin: 1, end: 0.75)
+                                          .animate(anim)
+                                      : Tween<double>(begin: 0.75, end: 1)
+                                          .animate(anim),
+                                  child: ScaleTransition(
+                                      scale: anim, child: child),
+                                ),
+                            child: _currIndex == 0
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.white,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    key: const ValueKey("icon1"),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Container(
+                                        height: 50,
+                                        width: 50,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.white,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    key: const ValueKey("icon2"),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Container(
+                                        height: 50,
+                                        width: 50,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                        onPressed: () {
+                          _currIndex = _currIndex == 0 ? 1 : 0;
+                          takePicture();
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.file(
-                              Platform.isIOS
-                                  ? File(thumbnailimage[index].path).absolute
-                                  : File(thumbnailimage[index].path),
-                              height: 58,
-                              width: 58,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // Camera Switch Button (Adjusted for iOS)
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    right: 16,
-                    bottom: Platform.isIOS ? 30 : 16,
-                  ),
-                  child: IconButton(
-                    iconSize: 40,
-                    icon: const Icon(Icons.camera_front, color: Colors.white),
-                    onPressed: _onCameraSwitch,
-                  ),
-                ),
-              ),
-
-              // Capture Button (Fixed for iOS)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: Platform.isIOS ? 40 : 20,
-                  ),
-                  child: IconButton(
-                    iconSize: 80,
-                    icon: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
                       ),
                     ),
-                    onPressed: takePicture,
-                  ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-
+              )
+            ])))),
+    );
+  }
   Future<void> _onCameraSwitch() async {
     final CameraDescription cameraDescription =
         (_controller!.description == _cameras[0]) ? _cameras[1] : _cameras[0];
@@ -242,7 +340,7 @@ Widget _buildCameraPreview() {
       if (mounted) setState(() {});
       if (_controller!.value.hasError) {}
     });
-
+ 
     try {
       await _controller!.initialize();
       // ignore: empty_catches
@@ -251,7 +349,7 @@ Widget _buildCameraPreview() {
       setState(() {});
     }
   }
-
+ 
   takePicture() async {
     if (_controller!.value.isTakingPicture) {
       return null;
@@ -266,7 +364,7 @@ Widget _buildCameraPreview() {
       return null;
     }
   }
-
+ 
   @override
   Widget build(BuildContext context) {
     if (_controller != null) {
@@ -312,9 +410,9 @@ Widget _buildCameraPreview() {
       ),
   ],
 );
-
+ 
   }
-
+ 
   @override
   void dispose() {
     if (_controller != null) {
@@ -322,11 +420,11 @@ Widget _buildCameraPreview() {
     } else {
       _animationController.dispose();
     }
-
+ 
     super.dispose();
   }
 }
-
+ 
 class MediaModel {
   File file;
   String filePath;
