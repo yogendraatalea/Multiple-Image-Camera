@@ -99,30 +99,40 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     super.initState();
   }
 
- Widget _buildCameraPreview() {
+
+
+Widget _buildCameraPreview() {
   return Scaffold(
     extendBodyBehindAppBar: true,
     body: Container(
-      color: Colors.black, // Helps avoid iOS layout flickering
+      color: Colors.black, // Helps avoid flickering issues
       child: SafeArea(
         child: GestureDetector(
           onScaleStart: (details) => zoom = _scaleFactor,
           onScaleUpdate: (details) {
             _scaleFactor = (zoom * details.scale).clamp(1.0, 10.0);
-            if (_controller!.value.isInitialized) {
+            if (_controller!.value.isInitialized && Platform.isAndroid) {
               _controller!.setZoomLevel(_scaleFactor);
             }
           },
           child: Stack(
             children: [
+              // Camera Preview (Fix for iOS using AspectRatio)
               if (_controller != null && _controller!.value.isInitialized)
-                CameraPreview(_controller!)
+                Platform.isIOS
+                    ? Center(
+                        child: AspectRatio(
+                          aspectRatio: _controller!.value.aspectRatio,
+                          child: CameraPreview(_controller!),
+                        ),
+                      )
+                    : CameraPreview(_controller!)
               else
                 const Center(child: CircularProgressIndicator()),
 
               // Thumbnail List
               Positioned(
-                bottom: 10,
+                bottom: Platform.isIOS ? 20 : 10,
                 child: SizedBox(
                   height: 90,
                   child: ListView.builder(
@@ -137,7 +147,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ImagePreviewView(
-                                File(thumbnailimage[index].path),
+                                Platform.isIOS
+                                    ? File(thumbnailimage[index].path).absolute
+                                    : File(thumbnailimage[index].path),
                                 "",
                               ),
                             ),
@@ -148,7 +160,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.file(
-                              File(thumbnailimage[index].path),
+                              Platform.isIOS
+                                  ? File(thumbnailimage[index].path).absolute
+                                  : File(thumbnailimage[index].path),
                               height: 58,
                               width: 58,
                               fit: BoxFit.cover,
@@ -161,11 +175,14 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                 ),
               ),
 
-              // Camera Switch Button
+              // Camera Switch Button (Adjusted for iOS)
               Align(
                 alignment: Alignment.bottomRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.only(
+                    right: 16,
+                    bottom: Platform.isIOS ? 30 : 16,
+                  ),
                   child: IconButton(
                     iconSize: 40,
                     icon: const Icon(Icons.camera_front, color: Colors.white),
@@ -174,11 +191,13 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                 ),
               ),
 
-              // Capture Button
+              // Capture Button (Fixed for iOS)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
+                  padding: EdgeInsets.only(
+                    bottom: Platform.isIOS ? 40 : 20,
+                  ),
                   child: IconButton(
                     iconSize: 80,
                     icon: Container(
@@ -209,6 +228,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     ),
   );
 }
+
 
   Future<void> _onCameraSwitch() async {
     final CameraDescription cameraDescription =
