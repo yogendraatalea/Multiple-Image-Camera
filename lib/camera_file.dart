@@ -119,13 +119,12 @@ Widget _buildCameraPreview() {
             children: [
               // Camera Preview (Fix for iOS using AspectRatio)
               if (_controller != null && _controller!.value.isInitialized)
-                Platform.isIOS
-                    ? Center(
-                        child: AspectRatio(
-                          aspectRatio: _controller!.value.aspectRatio,
-                          child: CameraPreview(_controller!),
-                        ),
-                      )
+                  Center(
+                    child: AspectRatio(
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: CameraPreview(_controller!),
+                    ),
+                  )
                     : CameraPreview(_controller!)
               else
                 const Center(child: CircularProgressIndicator()),
