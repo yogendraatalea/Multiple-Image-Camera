@@ -4,15 +4,15 @@ import "package:flutter/material.dart";
 import "package:camera/camera.dart";
 import 'package:flutter/services.dart';
 import 'package:multiple_image_camera/image_preview.dart';
- 
+
 class CameraFile extends StatefulWidget {
   final Widget? customButton;
   const CameraFile({super.key, this.customButton});
- 
+
   @override
   State<CameraFile> createState() => _CameraFileState();
 }
- 
+
 class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   double zoom = 0.0;
   double _scaleFactor = 1.0;
@@ -27,13 +27,13 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController controller;
   late Animation<double> scaleAnimation;
- 
+
   addImages(XFile image) {
     setState(() {
       imageFiles.add(image);
       thumbnailimage.clear();
       thumbnailimage.insert(0, image);
-      print('thumbnailimage.length ${thumbnailimage.length}');
+     
       _animationController = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 1500));
       animation = Tween<double>(begin: 400, end: 1).animate(scaleAnimation =
@@ -43,14 +43,14 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       _animationController.forward();
     });
   }
- 
+
   removeImage() {
     setState(() {
       // imageFiles.removeLast();
       thumbnailimage.removeLast();
     });
   }
- 
+
   Widget? _animatedButton({Widget? customContent}) {
     return customContent ?? Container(
             width: 100,
@@ -59,9 +59,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
               color: Colors.white38,
               borderRadius: BorderRadius.circular(100.0),
             ),
-           
+            
             child: const Center(
-             
+              
               child: Text(
                 'Done',
                 style: TextStyle(
@@ -71,11 +71,11 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
                     decoration: TextDecoration.none,
                     ),
               ),
-             
+              
             ),
           );
   }
- 
+
   Future<void> _initCamera() async {
     _cameras = await availableCameras();
     // ignore: unnecessary_null_comparison
@@ -90,15 +90,15 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       });
     } else {}
   }
- 
+
   @override
   void initState() {
     _initCamera();
     _currIndex = 0;
- 
+
     super.initState();
   }
- 
+
   Widget _buildCameraPreview() {
     return Scaffold(
         extendBodyBehindAppBar: true,
@@ -111,18 +111,18 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
         onScaleUpdate: (details) {
   // Calculate the zoom level
   _scaleFactor = zoom * details.scale;
- 
+
   // Ensure the zoom level stays within valid bounds (1.0 to 10.0)
   if (_scaleFactor < 1.0) {
     _scaleFactor = 1.0;
   } else if (_scaleFactor > 10.0) {
     _scaleFactor = 10.0;
   }
- 
+
   // Apply the zoom level to the camera
   _controller!.setZoomLevel(_scaleFactor);
 },
- 
+
         child: SizedBox(
             width: double.infinity,
             height: double.infinity,
@@ -340,7 +340,7 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       if (mounted) setState(() {});
       if (_controller!.value.hasError) {}
     });
- 
+
     try {
       await _controller!.initialize();
       // ignore: empty_catches
@@ -349,22 +349,48 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       setState(() {});
     }
   }
- 
-  takePicture() async {
-    if (_controller!.value.isTakingPicture) {
-      return null;
-    }
-    try {
-      final image = await _controller!.takePicture();
-      setState(() {
-        addImages(image);
-        HapticFeedback.lightImpact();
-      });
-    } on CameraException {
-      return null;
-    }
+  int imageCount = 0; // Counter to track the number of captured images
+
+takePicture() async {
+  if (_controller!.value.isTakingPicture) {
+    return null;
   }
- 
+
+  // Check if the user has already captured 20 images
+  if (imageCount >= 20) {
+    // Show a dialog or pop-up (e.g., a snack bar) informing the user
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Limit Reached'),
+        content: Text('You can only capture 20 images at a time.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+    return null; // Prevent taking more pictures
+  }
+
+  try {
+    final image = await _controller!.takePicture();
+
+    setState(() {
+      addImages(image);
+      imageCount++; // Increment image counter
+      HapticFeedback.lightImpact();
+    });
+  } on CameraException {
+    return null;
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     if (_controller != null) {
@@ -410,9 +436,9 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
       ),
   ],
 );
- 
+
   }
- 
+
   @override
   void dispose() {
     if (_controller != null) {
@@ -420,11 +446,11 @@ class _CameraFileState extends State<CameraFile> with TickerProviderStateMixin {
     } else {
       _animationController.dispose();
     }
- 
+
     super.dispose();
   }
 }
- 
+
 class MediaModel {
   File file;
   String filePath;
