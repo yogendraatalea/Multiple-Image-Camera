@@ -37,6 +37,7 @@ class _ImagePreviewViewState extends State<ImagePreviewView> {
         centerTitle: true,
         backgroundColor: Colors.black,
         elevation: 1,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           widget.imageTitle,
           style: const TextStyle(
